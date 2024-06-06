@@ -12,8 +12,6 @@ st.set_page_config(
     page_icon="👋",
 )
 
-st.write("# Welcome to Smart Market Mapper! 👋")
-
 def construct_df_from_datacontent(url):
     data = requests.get(url).json()
     
@@ -54,7 +52,7 @@ def construct_df_from_datacontent(url):
 compiled_data = pd.read_csv('clustered_market_potential.csv')
 # compiled_data
 
-# st.header('Smart Market Mapper', divider='rainbow')
+st.header("Welcome to Smart Market Mapper! 👋", divider='rainbow')
 
 
 geometries_df = pd.read_csv('geometries_2.csv')
