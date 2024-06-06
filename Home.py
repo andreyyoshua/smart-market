@@ -7,6 +7,13 @@ import pandas as pd
 import requests
 import time
 
+st.set_page_config(
+    page_title="Hello",
+    page_icon="👋",
+)
+
+st.write("# Welcome to Smart Market Mapper! 👋")
+
 def construct_df_from_datacontent(url):
     data = requests.get(url).json()
     
@@ -47,7 +54,7 @@ def construct_df_from_datacontent(url):
 compiled_data = pd.read_csv('clustered_market_potential.csv')
 # compiled_data
 
-st.header('Smart Market Mapper', divider='rainbow')
+# st.header('Smart Market Mapper', divider='rainbow')
 
 
 geometries_df = pd.read_csv('geometries_2.csv')
@@ -57,12 +64,18 @@ geometries_df['geometry'] = gpd.GeoSeries.from_wkt(geometries_df['geometry'])
 gdf = gpd.GeoDataFrame(geometries_df, geometry='geometry', crs="4326")
 gdf["name"] = gdf.index
 colors = []
+cluster_to_colors = []
 for province in gdf['name']:
     row = compiled_data[compiled_data['Provinsi'] == province.upper()]
     colors.append(row['color'].iloc[0])
+    if any(x["cluster"] == int(row['Cluster'].iloc[0].replace('Cluster ', '')) for x in cluster_to_colors) is False:
+        cluster_to_colors.append({
+            "cluster": int(row['Cluster'].iloc[0].replace('Cluster ', '')),
+            "color": row['color'].iloc[0]
+        })
 gdf["color"] = colors
 gdf.reset_index(drop=True, inplace=True)
-# gdf
+
 
 has_finished = False
 
@@ -84,16 +97,30 @@ with st.form("my_form"):
         selected_province_data = compiled_data[compiled_data.columns[:-1]]
         selected_province_data = selected_province_data[selected_province_data["Provinsi"] == selected_province.upper()]
 
+
         t = st.empty()
-        text = "You have a good choice. With"
-        for col in selected_province_data[selected_province_data.columns[1:-2]]:
-            text += f"\n{selected_province_data[col][selected_province_data.index[0]]} {col},"
+        text = f"""Your option to start {selected_industry} business at {selected_province} is a good choice. With
+        """
+        selected_data = selected_province_data[[
+            "Income Average per hour",
+            "GDP",
+            "SD / Sederajat",
+            "Digital Wallet Adoption Rate",
+            "SMP / Sederajat",
+            "Micro Business",
+            "Population Density (per KM)",
+            "Jumlah Bencana Alam",
+            "Household Consumptions",
+            "Pasar Tradisional"
+        ]]
+        for col in selected_data:
+            text += f"\n{selected_data[col][selected_data.index[0]]} {col},"
         text = text[:-1]
-        text += f"\nIt's a good place to start your {selected_industry} business at {selected_province}"
+        text += f"\n\nIt's a good place to start your {selected_industry} business at {selected_province}"
 
         for i in range(len(text) + 1):
             t.text("%s..." % text[0:i])
-            time.sleep(0.01)
+            time.sleep(0.005)
 
         "See below for the specific data"
         selected_province_data.reset_index(drop=True, inplace=True)
@@ -114,7 +141,7 @@ with st.form("my_form"):
                 style_function=lambda x: {
                     'fillColor': x["properties"]["color"],
                     "color": "black",
-                    "fillOpacity": 0.1,
+                    "fillOpacity": 0.4,
                     "weight": 1,
                 }
                 # tooltip=tooltip,
@@ -122,8 +149,33 @@ with st.form("my_form"):
             ).add_to(m)
 
             st_data = st_folium(m, width=750, height=400)
+
+            cluster_to_colors = sorted(cluster_to_colors, key=lambda x: x['cluster'])
+            cluster_to_potentials = {
+                4: 'Very Low Potential ',
+                3: 'Low Potential',
+                2: 'Very High Potential',
+                1: 'High potential',
+                0: 'Medium Potential'
+            }
+            for cluster_to_color in cluster_to_colors:
+                st.components.v1.html(
+                    f"""
+                    <div style="display:flex; flex-direction:row">
+                        <div style="background-color:white;width:20px; height:20px; margin-right:8px;">
+                            <div style="background-color:{cluster_to_color["color"]}; opacity:0.5; width:20px; height:20px;">
+                        
+                            </div>
+                        </div>
+                        <div style="color:white;">
+                            {cluster_to_potentials[cluster_to_color["cluster"]]} Area
+                        </div>
+                    </div>
+                    """,
+                    height=27
+                )
         # st.page_link("pages/explore.py", label="Want to explore more? Let's go")
-        st.page_link("pages/kyc.py", label="Get your business? Let's Start")
+        # st.page_link("pages/kyc.py", label="Get your business? Let's Start")
 
         # from pycaret.regression import *
 
