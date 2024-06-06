@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 import time
+import base64
 
 st.set_page_config(
     page_title="Hello",
@@ -52,13 +53,53 @@ def construct_df_from_datacontent(url):
 compiled_data = pd.read_csv('clustered_market_potential.csv')
 # compiled_data
 
-st.header("Welcome to Smart Market Mapper! 👋", divider='rainbow')
+st.write("# Welcome to Smart Market Mapper! 👋")
+LOGO_IMAGE = "biissa.png"
+st.markdown(
+    """
+    <style>
+    .container {
+        display: flex;
+    }
+    .logo-text {
+        # font-weight:700 !important;
+        # font-size:50px !important;
+        # color: #f9a01b !important;
+        # padding-top: 75px !important;
+        margin-right: 8px;
+    }
+    .logo-img {
+        # float:right;
+        width: 60px;
+        height: 25px
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+st.markdown(
+    f"""
+    <div class="container">
+        <p class="logo-text">By</p>
+        <img class="logo-img" src="data:image/png;base64,{base64.b64encode(open(LOGO_IMAGE, "rb").read()).decode()}">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+st.text("")
+st.text("")
 
 
 geometries_df = pd.read_csv('geometries_2.csv')
 geometries_df = geometries_df.T
 geometries_df.columns = ['geometry']
 geometries_df['geometry'] = gpd.GeoSeries.from_wkt(geometries_df['geometry'])
+
+
 gdf = gpd.GeoDataFrame(geometries_df, geometry='geometry', crs="4326")
 gdf["name"] = gdf.index
 colors = []
