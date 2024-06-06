@@ -10,7 +10,8 @@ import base64
 
 st.set_page_config(
     page_title="Hello",
-    page_icon="👋",
+    page_icon="🤖",
+    layout='wide'
 )
 
 def construct_df_from_datacontent(url):
@@ -53,7 +54,7 @@ def construct_df_from_datacontent(url):
 compiled_data = pd.read_csv('clustered_market_potential.csv')
 # compiled_data
 
-st.write("# Welcome to Smart Market Mapper! 👋")
+st.write("# Welcome to BusinessVision AI! 👋🤖")
 LOGO_IMAGE = "biissa.png"
 st.markdown(
     """
@@ -71,7 +72,7 @@ st.markdown(
     .logo-img {
         # float:right;
         width: 60px;
-        height: 25px
+        height: 30px
     }
     </style>
     """,
@@ -118,8 +119,8 @@ gdf.reset_index(drop=True, inplace=True)
 
 has_finished = False
 
-'We can help you to succeed in your business'
-'To start, let us know more about your business'
+'We can help you to be succeed in your business'
+'To start, let us know more about your preference'
 
 with st.form("my_form"):
     selected_province = st.selectbox(
@@ -187,7 +188,7 @@ with st.form("my_form"):
                 # popup=popup,
             ).add_to(m)
 
-            st_data = st_folium(m, width=750, height=400)
+            st_data = st_folium(m, width=1000, height=500)
 
             cluster_to_colors = sorted(cluster_to_colors, key=lambda x: x['cluster'])
             cluster_to_potentials = {
